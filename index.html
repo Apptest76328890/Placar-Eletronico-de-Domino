@@ -105,6 +105,29 @@
   <main id="container-cartoes" class="container"></main>
 
   <script>
+    // Solicitar Wake Lock para manter a tela ativa
+    if ('wakeLock' in navigator) {
+      let wakeLock = null;
+
+      const requestWakeLock = async () => {
+        try {
+          wakeLock = await navigator.wakeLock.request('screen');
+          console.log('Wake Lock ativo!');
+        } catch (err) {
+          console.error(`${err.name}, ${err.message}`);
+        }
+      };
+
+      requestWakeLock();
+
+      // Atualizar Wake Lock em caso de visibilidade mudar
+      document.addEventListener('visibilitychange', async () => {
+        if (wakeLock !== null && document.visibilityState === 'visible') {
+          requestWakeLock();
+        }
+      });
+    }
+
     class Time {
       constructor({ id, nome, corDeFundo, corTexto }) {
         this.id = id;
