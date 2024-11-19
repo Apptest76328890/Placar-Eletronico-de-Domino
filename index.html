@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projeto de Cards</title>
+  <title>Pontuação de Dominó</title>
   <style>
     :root {
-      --team1-bg: #ffcccb;
-      --team1-color: #b71c1c;
-      --team2-bg: #add8e6;
-      --team2-color: #0d47a1;
-      --button-bg-opacity: 0.8; /* Transparência para os botões */
-      --button-hover-scale: 1.05; /* Efeito de hover nos botões */
-      --button-radius: 4px;
-      --button-padding: 10px;
+      --time1-bg: #B3CDE0;
+      --time1-cor: #4D4D4D;
+      --time2-bg: #BFDAB5;
+      --time2-cor: #4D4D4D;
+      --botao-bg: #E5E5E5;
+      --botao-raio: 8px;
+      --botao-padding: 14px;
+      --familia-fonte: 'Open Sans', sans-serif;
+      --botao-duracao-press: 0.5s;
     }
 
     body, html {
@@ -21,7 +22,8 @@
       padding: 0;
       width: 100%;
       height: 100%;
-      font-family: Arial, sans-serif;
+      font-family: var(--familia-fonte);
+      background: #F5F5F5;
     }
 
     .container {
@@ -30,7 +32,7 @@
       height: 100%;
     }
 
-    .card {
+    .cartao {
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -38,61 +40,40 @@
       justify-content: space-between;
       padding: 20px;
       position: relative;
+      border-radius: 15px;
+      margin: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    .score {
-      font-size: 6em;
+    .pontuacao {
+      font-size: 5em;
       font-weight: bold;
       margin: auto 0;
     }
 
-    .team1 {
-      background-color: var(--team1-bg);
-    }
-
-    .team2 {
-      background-color: var(--team2-bg);
-    }
-
-    .team1 .score {
-      color: var(--team1-color);
-    }
-
-    .team2 .score {
-      color: var(--team2-color);
-    }
-
-    .button-container {
+    .container-botao {
       display: flex;
-      gap: 10px;
+      gap: 14px;
       justify-content: center;
     }
 
-    .button {
-      min-width: 60px;
-      padding: var(--button-padding);
+    .botao {
+      min-width: 70px;
+      padding: var(--botao-padding);
       border: none;
-      border-radius: var(--button-radius);
+      border-radius: var(--botao-raio);
       cursor: pointer;
-      font-size: 1.5em;
-      color: #fff;
-      background-color: rgba(0, 0, 0, 0.1); /* Cor neutra com transparência */
-      transition: background-color 0.3s, transform 0.2s;
+      font-size: 1.6em;
+      color: #000;
+      background-color: var(--botao-bg);
+      transition: background-color var(--botao-duracao-press);
     }
 
-    .team1 .button {
-      background-color: rgba(183, 28, 28, var(--button-bg-opacity)); /* Vermelho suave */
+    .botao:active {
+      filter: brightness(85%);
     }
 
-    .team2 .button {
-      background-color: rgba(13, 71, 161, var(--button-bg-opacity)); /* Azul suave */
-    }
-
-    .button:hover {
-      transform: scale(var(--button-hover-scale)); /* Efeito de hover */
-    }
-
-    .undo-button {
+    .botao-desfazer {
       position: absolute;
       top: 10px;
       right: 10px;
@@ -108,13 +89,9 @@
       transition: background-color 0.3s;
     }
 
-    .undo-button img {
+    .botao-desfazer img {
       width: 24px;
       height: 24px;
-    }
-
-    .undo-button:hover {
-      background-color: #eeeeee;
     }
 
     @media (orientation: landscape) {
@@ -125,68 +102,103 @@
   </style>
 </head>
 <body>
-
-  <main class="container">
-    <!-- Card da Equipe 1 -->
-    <div class="card team1" data-team="team1">
-      <button class="undo-button" onclick="undoPoints('team1')">
-        <img src="https://img.icons8.com/material-outlined/24/000000/undo.png" alt="Desfazer">
-      </button>
-      <span class="score" id="score-team1">0</span>
-      <div class="button-container">
-        <button class="button" data-value="5">5</button>
-        <button class="button" data-value="10">10</button>
-        <button class="button" data-value="20">20</button>
-        <button class="button" data-value="50">50</button>
-      </div>
-    </div>
-
-    <!-- Card da Equipe 2 -->
-    <div class="card team2" data-team="team2">
-      <button class="undo-button" onclick="undoPoints('team2')">
-        <img src="https://img.icons8.com/material-outlined/24/000000/undo.png" alt="Desfazer">
-      </button>
-      <span class="score" id="score-team2">0</span>
-      <div class="button-container">
-        <button class="button" data-value="5">5</button>
-        <button class="button" data-value="10">10</button>
-        <button class="button" data-value="20">20</button>
-        <button class="button" data-value="50">50</button>
-      </div>
-    </div>
-  </main>
+  <main id="container-cartoes" class="container"></main>
 
   <script>
-    const history = {
-      team1: [],
-      team2: []
-    };
+    class Time {
+      constructor({ id, nome, corDeFundo, corTexto }) {
+        this.id = id;
+        this.nome = nome;
+        this.corDeFundo = corDeFundo;
+        this.corTexto = corTexto;
+        this.pontuacao = 0;
+        this.historicoPontos = [];
+      }
 
-    // Delegação de eventos para os botões de pontuação
-    document.querySelectorAll('.button').forEach(button => {
-      button.addEventListener('click', () => {
-        const points = parseInt(button.getAttribute('data-value'));
-        const team = button.closest('.card').getAttribute('data-team');
-        addPoints(team, points);
-      });
-    });
+      adicionarPontos(pontos) {
+        this.pontuacao += pontos;
+        this.historicoPontos.push(pontos);
+      }
 
-    function addPoints(team, points) {
-      const scoreElement = document.getElementById(`score-${team}`);
-      const currentScore = parseInt(scoreElement.textContent);
-      scoreElement.textContent = currentScore + points;
-      history[team].push(points);
-    }
-
-    function undoPoints(team) {
-      const scoreElement = document.getElementById(`score-${team}`);
-      if (history[team].length > 0) {
-        const lastPoints = history[team].pop();
-        const currentScore = parseInt(scoreElement.textContent);
-        scoreElement.textContent = currentScore - lastPoints;
+      desfazerPontos() {
+        const ultimoPonto = this.historicoPontos.pop();
+        if (ultimoPonto !== undefined) {
+          this.pontuacao -= ultimoPonto;
+        }
       }
     }
-  </script>
 
+    class Jogo {
+      constructor(configuracaoTimes, opcoesPontos, idContainer) {
+        this.times = configuracaoTimes.map(config => new Time(config));
+        this.opcoesPontos = opcoesPontos;
+        this.container = document.getElementById(idContainer);
+      }
+
+      iniciar() {
+        this.container.innerHTML = '';
+        this.times.forEach(time => this.criarCartao(time));
+      }
+
+      criarCartao(time) {
+        const cartao = this.criarElementosCartao(time);
+        this.container.appendChild(cartao);
+        this.adicionarEventos(cartao, time);
+      }
+
+      criarElementosCartao(time) {
+        const cartao = document.createElement('div');
+        cartao.classList.add('cartao');
+        cartao.style.backgroundColor = time.corDeFundo;
+
+        cartao.innerHTML = `
+          <button class="botao-desfazer">
+            <img src="https://img.icons8.com/material-outlined/24/000000/undo.png" alt="Desfazer">
+          </button>
+          <span class="pontuacao" style="color: ${time.corTexto};">${time.pontuacao}</span>
+          <div class="container-botao">
+            ${this.opcoesPontos.map(pontos => this.criarBotaoPontos(pontos)).join('')}
+          </div>
+        `;
+        return cartao;
+      }
+
+      criarBotaoPontos(pontos) {
+        return `<button class="botao" data-valor="${pontos}">${pontos}</button>`;
+      }
+
+      adicionarEventos(cartao, time) {
+        cartao.querySelector('.botao-desfazer').addEventListener('click', () => this.desfazerPontos(time, cartao));
+        cartao.querySelectorAll('.botao').forEach(botao => {
+          botao.addEventListener('click', () => this.adicionarPontos(time, parseInt(botao.getAttribute('data-valor')), cartao));
+        });
+      }
+
+      atualizarPontuacao(cartao, time) {
+        cartao.querySelector('.pontuacao').textContent = time.pontuacao;
+      }
+
+      adicionarPontos(time, pontos, cartao) {
+        time.adicionarPontos(pontos);
+        this.atualizarPontuacao(cartao, time);
+      }
+
+      desfazerPontos(time, cartao) {
+        time.desfazerPontos();
+        this.atualizarPontuacao(cartao, time);
+      }
+    }
+
+    const configuracao = {
+      times: [
+        { id: 'time1', nome: 'Time 1', corDeFundo: 'var(--time1-bg)', corTexto: 'var(--time1-cor)' },
+        { id: 'time2', nome: 'Time 2', corDeFundo: 'var(--time2-bg)', corTexto: 'var(--time2-cor)' }
+      ],
+      opcoesPontos: [5, 10, 20, 50]
+    };
+
+    const jogo = new Jogo(configuracao.times, configuracao.opcoesPontos, 'container-cartoes');
+    jogo.iniciar();
+  </script>
 </body>
 </html>
