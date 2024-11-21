@@ -43,14 +43,22 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
       // Se o arquivo estiver no cache, use-o
-      return response || fetch(event.request).then((networkResponse) => {
-        // Se a resposta da rede for válida, adicione ao cache
-        if (networkResponse && networkResponse.ok) {
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, networkResponse.clone());
-          });
+      if (response) {
+        return response;
+      }
+
+      // Se não estiver no cache, tente buscar na rede
+      return fetch(event.request).catch(() => {
+        // Caso o dispositivo esteja offline e o arquivo não esteja no cache
+        // Retorna uma resposta de fallback
+        if (event.request.url.includes('.html')) {
+          return caches.match('https://store-app.github.io/Placar-Eletronico-de-Domino/index.html');
         }
-        return networkResponse;
+        // Retorna um arquivo de fallback para outros tipos de arquivos se necessário
+        return new Response('Offline', {
+          status: 503,
+          statusText: 'Service Unavailable'
+        });
       });
     })
   );
