@@ -5,7 +5,7 @@ const urlsToCache = [
   'https://store-app.github.io/Placar-Eletronico-de-Domino/manifest.json',
   'https://store-app.github.io/Placar-Eletronico-de-Domino/icon-192x192.png',
   'https://store-app.github.io/Placar-Eletronico-de-Domino/icon-512x512.png',
-  'https://store-app.github.io/Placar-Eletronico-de-Domino/icon-undo.png
+  'https://store-app.github.io/Placar-Eletronico-de-Domino/icon-undo.png',
   // Adicione outros arquivos necessários (como CSS, JS, etc.)
 ];
 
