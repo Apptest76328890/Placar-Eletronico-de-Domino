@@ -1,23 +1,57 @@
-{
-  "name": "Placar Eletrônico de Dominó",
-  "short_name": "Placar Dominó",
-  "start_url": "https://store-app.github.io/Placar-Eletronico-de-Domino/index.html",   // Caminho absoluto para o arquivo index.html
-  "scope": "https://store-app.github.io/Placar-Eletronico-de-Domino/",  // Garante que o PWA funcione dentro do escopo do site
-  "display": "fullscreen",   // Configura o PWA para ser exibido em tela cheia
-  "background_color": "#121212",   // Cor de fundo da tela inicial
-  "theme_color": "#121212",  // Cor do tema para a barra de status
-  "icons": [
-    {
-      "src": "https://store-app.github.io/Placar-Eletronico-de-Domino/icon-192x192.png",  // Caminho absoluto para o ícone de 192x192
-      "sizes": "192x192",   // Tamanho do ícone
-      "type": "image/png"   // Tipo de imagem
-    },
-    {
-      "src": "https://store-app.github.io/Placar-Eletronico-de-Domino/icon-512x512.png",  // Caminho absoluto para o ícone de 512x512
-      "sizes": "512x512",   // Tamanho do ícone
-      "type": "image/png"   // Tipo de imagem
-    }
-  ],
-  "description": "Aplicativo de Placar Eletrônico para Jogo de Dominó",  // Descrição do app
-  "orientation": "any"  // Permite tanto orientação vertical quanto horizontal
-}
+// Nome do cache
+const CACHE_NAME = 'placar-dominio-v1';
+
+// Arquivos essenciais para o funcionamento offline
+const FILES_TO_CACHE = [
+  'https://store-app.github.io/Placar-Eletronico-de-Domino/index.html',         // Arquivo principal
+  'https://store-app.github.io/Placar-Eletronico-de-Domino/style.css',          // Arquivo de estilo
+  'https://store-app.github.io/Placar-Eletronico-de-Domino/script.js',          // Script JavaScript
+  'https://store-app.github.io/Placar-Eletronico-de-Domino/icon-192x192.png',   // Ícone de 192x192
+  'https://store-app.github.io/Placar-Eletronico-de-Domino/icon-512x512.png',   // Ícone de 512x512
+  'https://store-app.github.io/Placar-Eletronico-de-Domino/icon-undo.png',      // Ícone de desfazer
+  'https://store-app.github.io/Placar-Eletronico-de-Domino/manifest.json',      // Manifesto PWA
+];
+
+// Durante a instalação do service worker, os arquivos serão armazenados no cache
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('Arquivos adicionados ao cache!');
+      return cache.addAll(FILES_TO_CACHE);
+    })
+  );
+});
+
+// Durante a ativação do service worker, removemos caches antigos
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME) {
+            console.log('Cache antigo removido:', cache);
+            return caches.delete(cache);
+          }
+        })
+      );
+    })
+  );
+});
+
+// Durante o fetch, tenta responder com arquivos do cache ou da rede, se necessário
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      // Se o arquivo estiver no cache, use-o
+      return response || fetch(event.request).then((networkResponse) => {
+        // Se a resposta da rede for válida, adicione ao cache
+        if (networkResponse && networkResponse.ok) {
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, networkResponse.clone());
+          });
+        }
+        return networkResponse;
+      });
+    })
+  );
+});
