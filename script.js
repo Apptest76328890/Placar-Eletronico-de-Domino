@@ -175,3 +175,11 @@ if ('serviceWorker' in navigator) {
       .catch(error => console.error('Erro ao registrar o Service Worker:', error));
   });
 }
+
+if ('serviceWorker' in navigator && 'SyncManager' in window) {
+  navigator.serviceWorker.ready.then((registration) => {
+    registration.sync.register('weekly-update').catch((err) => {
+      console.error('Falha ao registrar sincronização semanal:', err);
+    });
+  });
+}
