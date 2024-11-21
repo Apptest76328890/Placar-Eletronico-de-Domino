@@ -52,7 +52,7 @@ class Jogo {
     // Conteúdo do cartão com pontuação e botões de pontos
     cartao.innerHTML = ` 
       <button class="botao-desfazer" title="Desfazer último ponto">
-        <img src="https://img.icons8.com/material-outlined/24/000000/undo.png" alt="Desfazer">
+        <img src="https://store-app.github.io/Placar-Eletronico-de-Domino/icon-undo.png" alt="Desfazer">
       </button>
       <span class="pontuacao" style="color: ${time.corTexto};">${time.pontuacao}</span>
       <div class="container-botao">
