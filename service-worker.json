@@ -5,7 +5,8 @@ const FILES_TO_CACHE = [
   `${BASE_URL}style.css`,
   `${BASE_URL}script.js`,
   `${BASE_URL}icon-192x192.png`,
-  `${BASE_URL}icon-512x512.png`
+  `${BASE_URL}icon-512x512.png`,
+  `${BASE_URL}icon-undo.png`
 ];
 
 // Instalação: Adiciona arquivos ao cache
