@@ -135,9 +135,9 @@ const configuracao = {
 const jogo = new Jogo(configuracao.times, configuracao.opcoesPontos, 'container-cartoes');
 jogo.iniciar();
 
-
-
-
+// ===============================
+// Registro do Service Worker
+// ===============================
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -146,4 +146,4 @@ if ('serviceWorker' in navigator) {
       .then(registration => console.log('Service Worker registrado com sucesso:', registration))
       .catch(error => console.error('Erro ao registrar o Service Worker:', error));
   });
-  }
+}
