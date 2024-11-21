@@ -1,23 +1,23 @@
 {
   "name": "Placar Eletrônico de Dominó",
   "short_name": "Placar Dominó",
-  "start_url": "/index.html",
-  "scope": "/",
-  "display": "fullscreen",
-  "background_color": "#121212",
-  "theme_color": "#121212",
+  "start_url": "index.html",   // Caminho relativo para o arquivo index.html
+  "scope": "/",  // Garante que o PWA funcione dentro do escopo do site
+  "display": "fullscreen",   // Configura o PWA para ser exibido em tela cheia
+  "background_color": "#121212",   // Cor de fundo da tela inicial
+  "theme_color": "#121212",  // Cor do tema para a barra de status
   "icons": [
     {
-      "src": "/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "/icon-192x192.png",  // Caminho relativo para o ícone de 192x192
+      "sizes": "192x192",   // Tamanho do ícone
+      "type": "image/png"   // Tipo de imagem
     },
     {
-      "src": "/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "/icon-512x512.png",  // Caminho relativo para o ícone de 512x512
+      "sizes": "512x512",   // Tamanho do ícone
+      "type": "image/png"   // Tipo de imagem
     }
   ],
-  "description": "Aplicativo de Placar Eletrônico para Jogo de Dominó",
-  "orientation": "any"  // Permite tanto vertical quanto horizontal
+  "description": "Aplicativo de Placar Eletrônico para Jogo de Dominó",  // Descrição do app
+  "orientation": "any"  // Permite tanto orientação vertical quanto horizontal
 }
