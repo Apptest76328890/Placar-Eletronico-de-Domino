@@ -1,0 +1,120 @@
+:root {
+  --time1-bg: rgba(46, 87, 119, 0.98);
+  --time1-cor: rgba(255, 255, 255, 1.0);
+  --time2-bg: rgba(27, 77, 59, 0.98);
+  --time2-cor: rgba(255, 255, 255, 1.0);
+  --botao-bg: rgba(46, 46, 46, 0.65);
+  --botao-cor: rgba(255, 255, 255, 0.85);
+  --botao-raio: 10px;
+  --botao-padding: 14px;
+  --familia-fonte: 'Open Sans', sans-serif;
+  --cor-press: #505050;
+  --cor-destaque: #FFC857;
+  --cor-desfazer: rgba(69, 69, 69, 0.8);
+  --sombra: 0 6px 20px rgba(0, 0, 0, 0.2);
+  --transicao-duracao: 0.3s;
+  --fundo-principal: #121212;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: var(--familia-fonte);
+  background: var(--fundo-principal);
+  user-select: none;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.cartao {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  margin: 10px;
+  border-radius: 20px;
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--sombra);
+  position: relative;
+  flex: 1;
+}
+
+.cartao.azul { background: var(--time1-bg); color: var(--time1-cor); }
+.cartao.verde { background: var(--time2-bg); color: var(--time2-cor); }
+
+.pontuacao {
+  font-size: 4.5em;
+  font-weight: bold;
+  margin: auto 0;
+  transition: transform var(--transicao-duracao) ease;
+  filter: brightness(0.96) opacity(0.96);
+}
+
+.container-botao {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+}
+
+.botao,
+.botao-desfazer {
+  padding: var(--botao-padding);
+  border: none;
+  border-radius: var(--botao-raio);
+  cursor: pointer;
+  font-size: 1.4em;
+  color: rgba(255, 255, 255, 0.9);
+  background-color: var(--botao-bg);
+  transition: background-color var(--transicao-duracao), transform var(--transicao-duracao);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.botao {
+  min-width: 70px;
+}
+
+.botao:active,
+.botao-desfazer:active {
+  background-color: var(--cor-press);
+  transform: scale(0.95);
+}
+
+.botao-desfazer {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: brightness(1.1);
+}
+
+.botao-desfazer img {
+  width: 24px;
+  height: 24px;
+  filter: brightness(1.1) invert(1);
+}
+
+button:focus {
+  outline: none;
+}
+
+@media (orientation: landscape) {
+  .container {
+    flex-direction: row;
+  }
+  }
