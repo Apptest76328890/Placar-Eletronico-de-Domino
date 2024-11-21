@@ -129,3 +129,16 @@ if ('serviceWorker' in navigator) {
       });
   });
 }
+
+
+
+
+document.addEventListener('dblclick', () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen()
+      .catch(err => console.error(`Erro ao entrar no modo fullscreen: ${err.message}`));
+  } else {
+    document.exitFullscreen()
+      .catch(err => console.error(`Erro ao sair do modo fullscreen: ${err.message}`));
+  }
+});
