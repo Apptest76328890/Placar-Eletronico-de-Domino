@@ -1,23 +1,23 @@
 // Nome do cache
 const CACHE_NAME = 'placar-dominio-v1';
 
-// URLs completas dos arquivos essenciais para o funcionamento offline
+// URLs completas para o conteúdo online (com HTTPS)
 const FILES_TO_CACHE = [
-  'https://seu-dominio.com/Placar-Eletronico-de-Domino/index.html',  // URL completa
-  'https://seu-dominio.com/Placar-Eletronico-de-Domino/style.css',   // URL completa
-  'https://seu-dominio.com/Placar-Eletronico-de-Domino/script.js',   // URL completa
-  'https://seu-dominio.com/Placar-Eletronico-de-Domino/icon-192x192.png',  // URL completa
-  'https://seu-dominio.com/Placar-Eletronico-de-Domino/icon-512x512.png',  // URL completa
-  'https://seu-dominio.com/Placar-Eletronico-de-Domino/icon-undo.png',     // URL completa
-  'https://seu-dominio.com/Placar-Eletronico-de-Domino/manifest.json',  // URL completa
+  'https://store-app.github.io/Placar-Eletronico-de-Domino/index.html',        // Arquivo principal
+  'https://store-app.github.io/Placar-Eletronico-de-Domino/style.css',         // Arquivo de estilo
+  'https://store-app.github.io/Placar-Eletronico-de-Domino/script.js',         // Script JavaScript
+  'https://store-app.github.io/Placar-Eletronico-de-Domino/icon-192x192.png',  // Ícone de 192x192
+  'https://store-app.github.io/Placar-Eletronico-de-Domino/icon-512x512.png',  // Ícone de 512x512
+  'https://store-app.github.io/Placar-Eletronico-de-Domino/icon-undo.png',     // Ícone de desfazer
+  'https://store-app.github.io/Placar-Eletronico-de-Domino/manifest.json',     // Manifesto PWA
 ];
 
-// Durante a instalação do service worker, armazenamos os arquivos no cache
+// Durante a instalação do service worker, os arquivos serão armazenados no cache
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('Arquivos adicionados ao cache!');
-      return cache.addAll(FILES_TO_CACHE); // Adiciona os arquivos essenciais ao cache
+      return cache.addAll(FILES_TO_CACHE); // Faz o download e armazena os arquivos no cache
     })
   );
 });
@@ -30,7 +30,7 @@ self.addEventListener('activate', (event) => {
         cacheNames.map((cache) => {
           if (cache !== CACHE_NAME) {
             console.log('Cache antigo removido:', cache);
-            return caches.delete(cache); // Limpa caches antigos
+            return caches.delete(cache); // Remove caches antigos
           }
         })
       );
@@ -38,49 +38,31 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Durante o fetch, tentamos responder com arquivos do cache, e se não houver no cache, buscamos na rede
+// Durante o fetch, tentamos responder com arquivos do cache ou da rede, se necessário
 self.addEventListener('fetch', (event) => {
+  // Verificar se a requisição é feita pela primeira vez ou se é necessário verificar por atualizações
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
+      // Se a requisição for encontrada no cache, serve ela diretamente
       if (cachedResponse) {
-        // Se o arquivo estiver no cache, serve do cache
         return cachedResponse;
       }
 
-      // Se o arquivo não estiver no cache, faz a requisição para a rede
+      // Caso contrário, tenta fazer a requisição na rede (online)
       return fetch(event.request).then((networkResponse) => {
+        // Se a resposta da rede for válida, armazena no cache
         if (networkResponse && networkResponse.ok) {
-          // Se a requisição da rede for bem-sucedida, adiciona ao cache
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, networkResponse.clone());
+            cache.put(event.request, networkResponse.clone()); // Atualiza o cache
           });
         }
-        return networkResponse; // Retorna o conteúdo da rede
+        return networkResponse; // Retorna a resposta da rede
       });
     })
   );
 });
 
-// Função para verificar e atualizar o cache periodicamente
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'update-cache') {
-    event.waitUntil(updateCache());
-  }
-});
-
-// Função para atualizar o cache com conteúdo da internet
-function updateCache() {
-  return caches.open(CACHE_NAME).then((cache) => {
-    // A atualização deve ser feita para cada arquivo essencial
-    return fetch('https://seu-dominio.com/Placar-Eletronico-de-Domino/index.html')
-      .then((response) => {
-        if (response && response.ok) {
-          console.log('Atualizando cache...');
-          return cache.put('https://seu-dominio.com/Placar-Eletronico-de-Domino/index.html', response);
-        }
-      })
-      .catch((error) => {
-        console.log('Erro ao atualizar o cache:', error);
-      });
-  });
-}
+// Função para atualizar o conteúdo periodicamente (para baixar novas versões)
+setInterval(() => {
+  self.registration.update(); // Faz uma nova verificação e atualização do Service Worker
+}, 1000 * 60 * 60 * 24 * 7); // A cada 1 semana (1 semana * 7 dias * 24 horas * 60 minutos * 60 segundos * 1000 milissegundos)
