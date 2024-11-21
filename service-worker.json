@@ -1,11 +1,13 @@
 const CACHE_NAME = 'placar-dominio-v1';
 const FILES_TO_CACHE = [
-  '/index.html',
-  '/style.css',
-  '/script.js',
-  '/icon-192x192.png',
-  '/icon-512x512.png',
-  '/icon-undo.png'
+  '/index.html',         // Arquivo principal
+  '/style.css',          // Estilos
+  '/script.js',          // Script
+  '/icon-192x192.png',   // Ícone 192x192
+  '/icon-512x512.png',   // Ícone 512x512
+  '/icon-undo.png',      // Ícone adicional
+  '/manifest.json',      // Manifesto PWA (essencial)
+  '/service-worker.js'   // Service worker (essencial)
 ];
 
 // Instalação: Adiciona arquivos ao cache
