@@ -1,12 +1,11 @@
 const CACHE_NAME = 'placar-dominio-v1';
-const BASE_URL = 'https://store-app.github.io/Placar-Eletronico-de-Domino/';
 const FILES_TO_CACHE = [
-  `${BASE_URL}index.html`,
-  `${BASE_URL}style.css`,
-  `${BASE_URL}script.js`,
-  `${BASE_URL}icon-192x192.png`,
-  `${BASE_URL}icon-512x512.png`,
-  `${BASE_URL}icon-undo.png`
+  '/index.html',
+  '/style.css',
+  '/script.js',
+  '/icon-192x192.png',
+  '/icon-512x512.png',
+  '/icon-undo.png'
 ];
 
 // Instalação: Adiciona arquivos ao cache
@@ -39,7 +38,15 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(response => {
-      return response || fetch(event.request);
+      return response || fetch(event.request).then(networkResponse => {
+        // Se a resposta for válida, coloca no cache
+        if (networkResponse && networkResponse.ok) {
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, networkResponse.clone());
+          });
+        }
+        return networkResponse;
+      });
     })
   );
 });
