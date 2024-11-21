@@ -1,0 +1,94 @@
+:root {
+  --time1-bg: #B3CDE0;
+  --time1-cor: #4D4D4D;
+  --time2-bg: #BFDAB5;
+  --time2-cor: #4D4D4D;
+  --botao-bg: #E5E5E5;
+  --botao-raio: 8px;
+  --botao-padding: 14px;
+  --familia-fonte: 'Open Sans', sans-serif;
+  --botao-duracao-press: 0.5s;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: var(--familia-fonte);
+  background: #F5F5F5;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.cartao {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  position: relative;
+  border-radius: 15px;
+  margin: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.pontuacao {
+  font-size: 5em;
+  font-weight: bold;
+  margin: auto 0;
+}
+
+.container-botao {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+}
+
+.botao {
+  min-width: 70px;
+  padding: var(--botao-padding);
+  border: none;
+  border-radius: var(--botao-raio);
+  cursor: pointer;
+  font-size: 1.6em;
+  color: #000;
+  background-color: var(--botao-bg);
+  transition: background-color var(--botao-duracao-press);
+}
+
+.botao:active {
+  filter: brightness(85%);
+}
+
+.botao-desfazer {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.botao-desfazer img {
+  width: 24px;
+  height: 24px;
+}
+
+@media (orientation: landscape) {
+  .container {
+    flex-direction: row;
+  }
+}
