@@ -1,11 +1,11 @@
-const CACHE_NAME = 'placar-eletronico-dominio-v1';
+const CACHE_NAME = 'placar-eletronico-dominio-v3';
 const urlsToCache = [
   '/',
   'index.html',
   'https://apptest76328890.github.io/Placar-Eletronico-de-Domino/manifest.json',
   'https://apptest76328890.github.io/Placar-Eletronico-de-Domino/icon-192x192.png',
   'https://apptest76328890.github.io/Placar-Eletronico-de-Domino/icon-512x512.png',
-  // Adicione outros arquivos ou links que você deseja cachear
+  // Adicione outros arquivos necessários (como CSS, JS, etc.)
 ];
 
 self.addEventListener('install', (event) => {
@@ -37,6 +37,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((cachedResponse) => {
+        // Se não houver resposta em cache, tenta buscar na rede (fallback)
         return cachedResponse || fetch(event.request);
       })
   );
