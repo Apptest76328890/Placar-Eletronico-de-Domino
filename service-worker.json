@@ -3,13 +3,13 @@ const CACHE_NAME = 'placar-dominio-v1';
 
 // Arquivos essenciais para o funcionamento offline
 const FILES_TO_CACHE = [
-  'https://store-app.github.io/Placar-Eletronico-de-Domino/index.html',         // Arquivo principal
-  'https://store-app.github.io/Placar-Eletronico-de-Domino/style.css',          // Arquivo de estilo
-  'https://store-app.github.io/Placar-Eletronico-de-Domino/script.js',          // Script JavaScript
-  'https://store-app.github.io/Placar-Eletronico-de-Domino/icon-192x192.png',   // Ícone de 192x192
-  'https://store-app.github.io/Placar-Eletronico-de-Domino/icon-512x512.png',   // Ícone de 512x512
-  'https://store-app.github.io/Placar-Eletronico-de-Domino/icon-undo.png',      // Ícone de desfazer
-  'https://store-app.github.io/Placar-Eletronico-de-Domino/manifest.json',      // Manifesto PWA
+  '/Placar-Eletronico-de-Domino/index.html',         // Arquivo principal
+  '/Placar-Eletronico-de-Domino/style.css',          // Arquivo de estilo
+  '/Placar-Eletronico-de-Domino/script.js',          // Script JavaScript
+  '/Placar-Eletronico-de-Domino/icon-192x192.png',   // Ícone de 192x192
+  '/Placar-Eletronico-de-Domino/icon-512x512.png',   // Ícone de 512x512
+  '/Placar-Eletronico-de-Domino/icon-undo.png',      // Ícone de desfazer
+  '/Placar-Eletronico-de-Domino/manifest.json',      // Manifesto PWA
 ];
 
 // Durante a instalação do service worker, os arquivos serão armazenados no cache
@@ -40,26 +40,67 @@ self.addEventListener('activate', (event) => {
 
 // Durante o fetch, tenta responder com arquivos do cache ou da rede, se necessário
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      // Se o arquivo estiver no cache, use-o
-      if (response) {
-        return response;
-      }
+  // Detecta se está online ou offline
+  const isOnline = navigator.onLine;
 
-      // Se não estiver no cache, tente buscar na rede
-      return fetch(event.request).catch(() => {
-        // Caso o dispositivo esteja offline e o arquivo não esteja no cache
-        // Retorna uma resposta de fallback
-        if (event.request.url.includes('.html')) {
-          return caches.match('https://store-app.github.io/Placar-Eletronico-de-Domino/index.html');
-        }
-        // Retorna um arquivo de fallback para outros tipos de arquivos se necessário
-        return new Response('Offline', {
-          status: 503,
-          statusText: 'Service Unavailable'
-        });
-      });
-    })
+  event.respondWith(
+    // Se estiver online, tenta buscar os recursos pela URL completa
+    isOnline 
+      ? fetch(event.request).then((networkResponse) => {
+          // Se a resposta da rede for válida, armazene no cache
+          if (networkResponse && networkResponse.ok) {
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, networkResponse.clone());
+            });
+          }
+          return networkResponse;
+        }).catch(() => {
+          // Caso o fetch falhe (em offline, por exemplo), busca no cache
+          return caches.match(event.request).then((cachedResponse) => {
+            // Se o arquivo estiver no cache, retorne-o
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            // Para HTML, devolve sempre o index.html armazenado no cache
+            if (event.request.url.endsWith('.html')) {
+              return caches.match('/Placar-Eletronico-de-Domino/index.html');
+            }
+            // Para arquivos CSS e JS, devolve os correspondentes no cache
+            if (event.request.url.endsWith('.css')) {
+              return caches.match('/Placar-Eletronico-de-Domino/style.css');
+            }
+            if (event.request.url.endsWith('.js')) {
+              return caches.match('/Placar-Eletronico-de-Domino/script.js');
+            }
+            // Para outros arquivos, retorna um erro 404
+            return new Response('Arquivo offline não encontrado', {
+              status: 404,
+              statusText: 'Not Found',
+            });
+          });
+        })
+      // Se estiver offline, tenta sempre buscar do cache
+      : caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+
+          // Caso esteja offline e não tenha o arquivo em cache, tenta fallback
+          if (event.request.url.endsWith('.html')) {
+            return caches.match('/Placar-Eletronico-de-Domino/index.html');
+          }
+          if (event.request.url.endsWith('.css')) {
+            return caches.match('/Placar-Eletronico-de-Domino/style.css');
+          }
+          if (event.request.url.endsWith('.js')) {
+            return caches.match('/Placar-Eletronico-de-Domino/script.js');
+          }
+
+          // Retorna erro 404 se não encontrar nada no cache
+          return new Response('Arquivo offline não encontrado', {
+            status: 404,
+            statusText: 'Not Found',
+          });
+        })
   );
 });
