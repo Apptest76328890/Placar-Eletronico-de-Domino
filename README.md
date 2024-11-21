@@ -77,6 +77,6 @@ Contribuições são bem-vindas! Se você encontrar um problema ou tiver uma ide
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT. Consulte o arquivo [LICENSE](LICENSE) para mais detalhes.
+Este projeto está sob a licença GNU General Public License v3.0. Consulte o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ---
