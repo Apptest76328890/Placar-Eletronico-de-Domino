@@ -1,0 +1,21 @@
+{
+  "name": "Placar Eletrônico de Dominó",
+  "short_name": "Placar Dominó",
+  "description": "Aplicativo de placar para jogos de dominó",
+  "start_url": "https://apptest76328890.github.io/Placar-Eletronico-de-Domino/",
+  "display": "fullscreen", 
+  "background_color": "#ffffff",
+  "theme_color": "#4D4D4D",
+  "icons": [
+    {
+      "src": "https://apptest76328890.github.io/Placar-Eletronico-de-Domino/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://apptest76328890.github.io/Placar-Eletronico-de-Domino/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
