@@ -1,26 +1,3 @@
-// Solicitar Wake Lock para manter a tela ativa
-if ('wakeLock' in navigator) {
-  let wakeLock = null;
-
-  const requestWakeLock = async () => {
-    try {
-      wakeLock = await navigator.wakeLock.request('screen');
-      console.log('Wake Lock ativo!');
-    } catch (err) {
-      console.error(`${err.name}, ${err.message}`);
-    }
-  };
-
-  requestWakeLock();
-
-  // Atualizar Wake Lock em caso de visibilidade mudar
-  document.addEventListener('visibilitychange', async () => {
-    if (wakeLock !== null && document.visibilityState === 'visible') {
-      requestWakeLock();
-    }
-  });
-}
-
 class Time {
   constructor({ id, nome, corDeFundo, corTexto }) {
     this.id = id;
@@ -115,30 +92,3 @@ const configuracao = {
 
 const jogo = new Jogo(configuracao.times, configuracao.opcoesPontos, 'container-cartoes');
 jogo.iniciar();
-
-
-// Verifica se o navegador suporta Service Workers e registra o Service Worker
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js')
-      .then((registration) => {
-        console.log('Service Worker registrado com sucesso:', registration);
-      })
-      .catch((error) => {
-        console.log('Falha ao registrar o Service Worker:', error);
-      });
-  });
-}
-
-
-
-
-document.addEventListener('dblclick', () => {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen()
-      .catch(err => console.error(`Erro ao entrar no modo fullscreen: ${err.message}`));
-  } else {
-    document.exitFullscreen()
-      .catch(err => console.error(`Erro ao sair do modo fullscreen: ${err.message}`));
-  }
-});
