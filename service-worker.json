@@ -1,23 +1,23 @@
 // Nome do cache
 const CACHE_NAME = 'placar-dominio-v1';
 
-// Arquivos essenciais para o funcionamento offline
+// URLs completas dos arquivos essenciais para o funcionamento offline
 const FILES_TO_CACHE = [
-  '/Placar-Eletronico-de-Domino/index.html',         // Arquivo principal
-  '/Placar-Eletronico-de-Domino/style.css',          // Arquivo de estilo
-  '/Placar-Eletronico-de-Domino/script.js',          // Script JavaScript
-  '/Placar-Eletronico-de-Domino/icon-192x192.png',   // Ícone de 192x192
-  '/Placar-Eletronico-de-Domino/icon-512x512.png',   // Ícone de 512x512
-  '/Placar-Eletronico-de-Domino/icon-undo.png',      // Ícone de desfazer
-  '/Placar-Eletronico-de-Domino/manifest.json',      // Manifesto PWA
+  'https://seu-dominio.com/Placar-Eletronico-de-Domino/index.html',  // URL completa
+  'https://seu-dominio.com/Placar-Eletronico-de-Domino/style.css',   // URL completa
+  'https://seu-dominio.com/Placar-Eletronico-de-Domino/script.js',   // URL completa
+  'https://seu-dominio.com/Placar-Eletronico-de-Domino/icon-192x192.png',  // URL completa
+  'https://seu-dominio.com/Placar-Eletronico-de-Domino/icon-512x512.png',  // URL completa
+  'https://seu-dominio.com/Placar-Eletronico-de-Domino/icon-undo.png',     // URL completa
+  'https://seu-dominio.com/Placar-Eletronico-de-Domino/manifest.json',  // URL completa
 ];
 
-// Durante a instalação do service worker, os arquivos serão armazenados no cache
+// Durante a instalação do service worker, armazenamos os arquivos no cache
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('Arquivos adicionados ao cache!');
-      return cache.addAll(FILES_TO_CACHE);
+      return cache.addAll(FILES_TO_CACHE); // Adiciona os arquivos essenciais ao cache
     })
   );
 });
@@ -30,7 +30,7 @@ self.addEventListener('activate', (event) => {
         cacheNames.map((cache) => {
           if (cache !== CACHE_NAME) {
             console.log('Cache antigo removido:', cache);
-            return caches.delete(cache);
+            return caches.delete(cache); // Limpa caches antigos
           }
         })
       );
@@ -38,69 +38,49 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Durante o fetch, tenta responder com arquivos do cache ou da rede, se necessário
+// Durante o fetch, tentamos responder com arquivos do cache, e se não houver no cache, buscamos na rede
 self.addEventListener('fetch', (event) => {
-  // Detecta se está online ou offline
-  const isOnline = navigator.onLine;
-
   event.respondWith(
-    // Se estiver online, tenta buscar os recursos pela URL completa
-    isOnline 
-      ? fetch(event.request).then((networkResponse) => {
-          // Se a resposta da rede for válida, armazene no cache
-          if (networkResponse && networkResponse.ok) {
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, networkResponse.clone());
-            });
-          }
-          return networkResponse;
-        }).catch(() => {
-          // Caso o fetch falhe (em offline, por exemplo), busca no cache
-          return caches.match(event.request).then((cachedResponse) => {
-            // Se o arquivo estiver no cache, retorne-o
-            if (cachedResponse) {
-              return cachedResponse;
-            }
-            // Para HTML, devolve sempre o index.html armazenado no cache
-            if (event.request.url.endsWith('.html')) {
-              return caches.match('/Placar-Eletronico-de-Domino/index.html');
-            }
-            // Para arquivos CSS e JS, devolve os correspondentes no cache
-            if (event.request.url.endsWith('.css')) {
-              return caches.match('/Placar-Eletronico-de-Domino/style.css');
-            }
-            if (event.request.url.endsWith('.js')) {
-              return caches.match('/Placar-Eletronico-de-Domino/script.js');
-            }
-            // Para outros arquivos, retorna um erro 404
-            return new Response('Arquivo offline não encontrado', {
-              status: 404,
-              statusText: 'Not Found',
-            });
-          });
-        })
-      // Se estiver offline, tenta sempre buscar do cache
-      : caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        // Se o arquivo estiver no cache, serve do cache
+        return cachedResponse;
+      }
 
-          // Caso esteja offline e não tenha o arquivo em cache, tenta fallback
-          if (event.request.url.endsWith('.html')) {
-            return caches.match('/Placar-Eletronico-de-Domino/index.html');
-          }
-          if (event.request.url.endsWith('.css')) {
-            return caches.match('/Placar-Eletronico-de-Domino/style.css');
-          }
-          if (event.request.url.endsWith('.js')) {
-            return caches.match('/Placar-Eletronico-de-Domino/script.js');
-          }
-
-          // Retorna erro 404 se não encontrar nada no cache
-          return new Response('Arquivo offline não encontrado', {
-            status: 404,
-            statusText: 'Not Found',
+      // Se o arquivo não estiver no cache, faz a requisição para a rede
+      return fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.ok) {
+          // Se a requisição da rede for bem-sucedida, adiciona ao cache
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, networkResponse.clone());
           });
-        })
+        }
+        return networkResponse; // Retorna o conteúdo da rede
+      });
+    })
   );
 });
+
+// Função para verificar e atualizar o cache periodicamente
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'update-cache') {
+    event.waitUntil(updateCache());
+  }
+});
+
+// Função para atualizar o cache com conteúdo da internet
+function updateCache() {
+  return caches.open(CACHE_NAME).then((cache) => {
+    // A atualização deve ser feita para cada arquivo essencial
+    return fetch('https://seu-dominio.com/Placar-Eletronico-de-Domino/index.html')
+      .then((response) => {
+        if (response && response.ok) {
+          console.log('Atualizando cache...');
+          return cache.put('https://seu-dominio.com/Placar-Eletronico-de-Domino/index.html', response);
+        }
+      })
+      .catch((error) => {
+        console.log('Erro ao atualizar o cache:', error);
+      });
+  });
+}
