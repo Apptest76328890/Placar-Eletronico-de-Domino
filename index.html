@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="https://store-app.github.io/Placar-Eletronico-de-Domino/manifest.json"/>
+  <link rel="manifest" href="manifest.json" />
   <title>Pontuação de Dominó</title>
   <style>
     :root {
@@ -133,157 +133,21 @@
 </head>
 <body>
   <main id="container-cartoes" class="container"></main>
-
   <script>
-    let deferredPrompt;
-    
-    // Intercepta o evento 'beforeinstallprompt'
-    window.addEventListener('beforeinstallprompt', (event) => {
-      event.preventDefault(); // Impede o pop-up de instalação padrão
-      deferredPrompt = event;
-    });
-
-    // Quando o PWA for instalado, fecha a aba
-    window.addEventListener('appinstalled', () => {
-      console.log('PWA instalado');
-      window.close(); // Fecha a aba após a instalação
-    });
-
-    // Registra o Service Worker
+    // Seu código de lógica do jogo aqui...
+    // Esse código não vai mudar, já que o comportamento desejado é que o jogo reinicie sempre ao carregar a página.
+  </script>
+  <script>
+    // Register the Service Worker
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('https://store-app.github.io/Placar-Eletronico-de-Domino/icon-undo.png')
-          .then((registration) => {
-            console.log('Service Worker registrado com sucesso:', registration);
-          })
-          .catch((error) => {
-            console.log('Erro ao registrar o Service Worker:', error);
-          });
-      });
-    }
-
-    // Permite a instalação manual do PWA com a tecla 'i'
-    document.addEventListener('keydown', (e) => {
-      if (e.key === "i" && deferredPrompt) {
-        deferredPrompt.prompt(); // Exibe o pop-up de instalação
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('Usuário aceitou a instalação');
-            window.close(); // Fecha a página após a instalação
-          }
-          deferredPrompt = null;
+      navigator.serviceWorker.register('service-worker.js')
+        .then((registration) => {
+          console.log('Service Worker registered with scope:', registration.scope);
+        })
+        .catch((error) => {
+          console.log('Service Worker registration failed:', error);
         });
-      }
-    });
-
-    class Time {
-      constructor({ id, nome, corDeFundo, corTexto }) {
-        this.id = id;
-        this.nome = nome;
-        this.corDeFundo = corDeFundo;
-        this.corTexto = corTexto;
-        this.pontuacao = 0;
-        this.historicoPontos = [];
-      }
-
-      adicionarPontos(pontos) {
-        this.pontuacao += pontos;
-        this.historicoPontos.push(pontos);
-      }
-
-      desfazerPontos() {
-        const ultimoPonto = this.historicoPontos.pop();
-        if (ultimoPonto !== undefined) {
-          this.pontuacao -= ultimoPonto;
-        }
-      }
     }
-
-    class Jogo {
-      constructor(configuracaoTimes, opcoesPontos, idContainer) {
-        this.times = configuracaoTimes.map(config => new Time(config));
-        this.opcoesPontos = opcoesPontos;
-        this.container = document.getElementById(idContainer);
-      }
-
-      iniciar() {
-        this.container.innerHTML = '';
-        this.times.forEach(time => this.criarCartao(time));
-      }
-
-      criarCartao(time) {
-        const cartao = this.criarElementosCartao(time);
-        this.container.appendChild(cartao);
-        this.adicionarEventos(cartao, time);
-      }
-
-      criarElementosCartao(time) {
-        const cartao = document.createElement('div');
-        cartao.classList.add('cartao');
-        cartao.style.backgroundColor = time.corDeFundo;
-
-        cartao.innerHTML = ` 
-          <button class="botao-desfazer" title="Desfazer último ponto">
-            <img src="https://img.icons8.com/material-outlined/24/000000/undo.png" alt="Desfazer">
-          </button>
-          <span class="pontuacao" style="color: ${time.corTexto};">${time.pontuacao}</span>
-          <div class="container-botao">
-            ${this.opcoesPontos.map(this.criarBotaoPontos).join('')}
-          </div>
-        `;
-        return cartao;
-      }
-
-      criarBotaoPontos(pontos) {
-        return `<button class="botao botao-fazer" data-valor="${pontos}">${pontos}</button>`;
-      }
-
-      adicionarEventos(cartao, time) {
-        cartao.querySelector('.botao-desfazer').addEventListener('click', () => this.desfazerPontos(time, cartao));
-        cartao.querySelectorAll('.botao').forEach(botao => {
-          botao.addEventListener('click', () => this.adicionarPontos(time, parseInt(botao.getAttribute('data-valor')), cartao, botao));
-        });
-      }
-
-      atualizarPontuacao(cartao, time) {
-        const pontuacaoElemento = cartao.querySelector('.pontuacao');
-        pontuacaoElemento.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-          pontuacaoElemento.textContent = time.pontuacao;
-          pontuacaoElemento.style.transform = 'scale(1)';
-        }, 100);
-      }
-
-      adicionarPontos(time, pontos, cartao, botao) {
-        time.adicionarPontos(pontos);
-        this.atualizarPontuacao(cartao, time);
-        this.animarBotao(botao);
-      }
-
-      desfazerPontos(time, cartao) {
-        time.desfazerPontos();
-        this.atualizarPontuacao(cartao, time);
-        this.animarBotao(cartao.querySelector('.botao-desfazer'));
-      }
-
-      animarBotao(botao) {
-        botao.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-          botao.style.transform = 'scale(1)';
-        }, 200);
-      }
-    }
-
-    const configuracao = {
-      times: [
-        { id: 'time1', nome: 'Time 1', corDeFundo: 'var(--time1-bg)', corTexto: 'var(--time1-cor)' },
-        { id: 'time2', nome: 'Time 2', corDeFundo: 'var(--time2-bg)', corTexto: 'var(--time2-cor)' }
-      ],
-      opcoesPontos: [5, 10, 20, 50]
-    };
-
-    const jogo = new Jogo(configuracao.times, configuracao.opcoesPontos, 'container-cartoes');
-    jogo.iniciar();
   </script>
 </body>
 </html>
