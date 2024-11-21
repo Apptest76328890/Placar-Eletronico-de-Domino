@@ -136,6 +136,34 @@ const jogo = new Jogo(configuracao.times, configuracao.opcoesPontos, 'container-
 jogo.iniciar();
 
 // ===============================
+// Função para ativar o Wake Lock
+// ===============================
+
+async function ativarWakeLock() {
+  try {
+    // Verifica se o navegador suporta a API de Wake Lock
+    if ('wakeLock' in navigator) {
+      // Solicita o Wake Lock para manter a tela ligada
+      const wakeLock = await navigator.wakeLock.request('screen');
+      console.log('Wake Lock ativado!');
+      
+      // Libera o Wake Lock quando a página for descarregada ou quando o usuário sair
+      window.addEventListener('beforeunload', () => {
+        wakeLock.release();
+        console.log('Wake Lock liberado!');
+      });
+    }
+  } catch (err) {
+    console.error('Erro ao tentar ativar o Wake Lock:', err);
+  }
+}
+
+// Chama a função para ativar o Wake Lock quando a página for carregada
+window.addEventListener('load', () => {
+  ativarWakeLock();
+});
+
+// ===============================
 // Registro do Service Worker
 // ===============================
 
