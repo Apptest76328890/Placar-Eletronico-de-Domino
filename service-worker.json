@@ -42,12 +42,22 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
+      // Tenta buscar o arquivo no cache
       if (cachedResponse) {
         // Se o arquivo estiver no cache, retorna ele
         return cachedResponse;
       }
 
-      // Se o arquivo não estiver no cache, retorna uma resposta customizada
+      // Se o arquivo não estiver no cache, evita a busca online
+      if (event.request.url.includes('placar') || event.request.url.includes('dados')) {
+        // Aqui, caso tenha algum arquivo específico, podemos adicionar o comportamento personalizado
+        return new Response('Conteúdo offline disponível', {
+          status: 200,
+          statusText: 'Conteúdo offline disponível.',
+        });
+      }
+
+      // Responde com mensagem customizada para offline, sem tentar acessar a internet
       return new Response('Este conteúdo está disponível apenas offline.', {
         status: 404,
         statusText: 'Offline: Conteúdo não disponível.',
