@@ -1,28 +1,28 @@
 // Nome do cache
 const CACHE_NAME = 'placar-dominio-v1';
 
-// URLs completas para o conteúdo online
+// Arquivos que queremos armazenar no cache inicialmente
 const FILES_TO_CACHE = [
-  'https://store-app.github.io/Placar-Eletronico-de-Domino/index.html',        // Arquivo principal
-  'https://store-app.github.io/Placar-Eletronico-de-Domino/style.css',         // Arquivo de estilo
-  'https://store-app.github.io/Placar-Eletronico-de-Domino/script.js',         // Script JavaScript
-  'https://store-app.github.io/Placar-Eletronico-de-Domino/icon-192x192.png',  // Ícone de 192x192
-  'https://store-app.github.io/Placar-Eletronico-de-Domino/icon-512x512.png',  // Ícone de 512x512
-  'https://store-app.github.io/Placar-Eletronico-de-Domino/icon-undo.png',     // Ícone de desfazer
-  'https://store-app.github.io/Placar-Eletronico-de-Domino/manifest.json',     // Manifesto PWA
+  './index.html',          // Arquivo principal
+  './style.css',           // Arquivo de estilo
+  './script.js',           // Script JavaScript
+  './icon-192x192.png',    // Ícone de 192x192
+  './icon-512x512.png',    // Ícone de 512x512
+  './icon-undo.png',       // Ícone de desfazer
+  './manifest.json',       // Manifesto PWA
 ];
 
-// Durante a instalação do Service Worker, os arquivos serão armazenados no cache
+// Durante a instalação, cache os arquivos necessários
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('Baixando arquivos para o cache pela primeira vez...');
+      console.log('Baixando arquivos para o cache...');
       return cache.addAll(FILES_TO_CACHE);
     })
   );
 });
 
-// Durante a ativação do Service Worker, removemos caches antigos
+// Durante a ativação, removemos caches antigos
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -38,22 +38,19 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Durante o fetch, sempre serve os arquivos do cache
+// Durante o fetch, tenta servir sempre os arquivos do cache
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        // Se o arquivo estiver no cache, serve ele
+        // Se o arquivo estiver no cache, retorna ele
         return cachedResponse;
       }
 
-      // Caso não tenha o arquivo no cache, vai buscar na rede
-      // Se o usuário estiver offline, e a rede não for acessível, o arquivo não será encontrado.
-      return fetch(event.request).catch(() => {
-        return new Response('Arquivo offline não disponível', {
-          status: 404,
-          statusText: 'Offline',
-        });
+      // Se o arquivo não estiver no cache, retorna uma resposta customizada
+      return new Response('Este conteúdo está disponível apenas offline.', {
+        status: 404,
+        statusText: 'Offline: Conteúdo não disponível.',
       });
     })
   );
