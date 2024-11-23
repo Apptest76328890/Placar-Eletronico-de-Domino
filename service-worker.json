@@ -12,9 +12,6 @@ const FILES_TO_CACHE = [
   'https://store-app.github.io/Placar-Eletronico-de-Domino/manifest.json',     // Manifesto PWA
 ];
 
-// Chave para armazenar a última data de atualização
-const LAST_UPDATE_KEY = 'last-update';
-
 // Durante a instalação do Service Worker, os arquivos serão armazenados no cache
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -41,16 +38,16 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Durante o fetch, serve apenas o conteúdo do cache
+// Durante o fetch, serve sempre os arquivos do cache
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        // Sempre usa o cache
+        // Se o arquivo está no cache, serve ele
         return cachedResponse;
       }
 
-      // Se o arquivo não estiver no cache (improvável), retorna um erro
+      // Se o arquivo não está no cache, exibe mensagem de offline
       return new Response('Arquivo offline não disponível', {
         status: 404,
         statusText: 'Offline',
@@ -59,53 +56,5 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Atualização semanal do cache
-self.addEventListener('sync', async (event) => {
-  if (event.tag === 'weekly-update') {
-    console.log('Iniciando atualização semanal...');
-    event.waitUntil(updateCacheIfNecessary());
-  }
-});
-
-// Verifica se já passou uma semana desde a última atualização
-async function updateCacheIfNecessary() {
-  const now = Date.now();
-  const lastUpdate = await getLastUpdate();
-
-  if (!lastUpdate || now - lastUpdate >= 7 * 24 * 60 * 60 * 1000) {
-    console.log('Mais de uma semana desde a última atualização. Atualizando...');
-    const cache = await caches.open(CACHE_NAME);
-    for (const url of FILES_TO_CACHE) {
-      try {
-        const response = await fetch(url);
-        if (response.ok) {
-          await cache.put(url, response);
-        }
-      } catch (error) {
-        console.error(`Erro ao atualizar o arquivo ${url}:`, error);
-      }
-    }
-    await setLastUpdate(now);
-  } else {
-    console.log('Menos de uma semana desde a última atualização. Sem ação.');
-  }
-}
-
-// Funções auxiliares para manipular a data de última atualização
-async function getLastUpdate() {
-  const cache = await caches.open(CACHE_NAME);
-  const response = await cache.match(LAST_UPDATE_KEY);
-  if (response) {
-    const text = await response.text();
-    return parseInt(text, 10);
-  }
-  return null;
-}
-
-async function setLastUpdate(timestamp) {
-  const cache = await caches.open(CACHE_NAME);
-  await cache.put(
-    LAST_UPDATE_KEY,
-    new Response(timestamp.toString(), { status: 200 })
-  );
-}
+// Não precisamos mais da atualização semanal, já que o cache é estático
+// Ou seja, o cache só será atualizado se o usuário desinstalar o PWA e instalar novamente.
