@@ -38,28 +38,20 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Durante o fetch, serve sempre os arquivos do cache, e se não encontrar, impede a busca na rede
+// Durante o fetch, serve os arquivos diretamente do cache
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      // Se o arquivo está no cache, serve ele
       if (cachedResponse) {
+        // Se o arquivo estiver no cache, serve ele
         return cachedResponse;
       }
 
-      // Se o arquivo não está no cache, e o usuário está offline, mostra um erro
-      if (!navigator.onLine) {
-        return new Response('Você está offline. O conteúdo não está disponível.', {
-          status: 503, // Service Unavailable
-          statusText: 'Offline',
-        });
-      }
-
-      // Caso contrário, tenta fazer a requisição pela rede (somente se online)
+      // Se o arquivo não estiver no cache, tenta buscar da rede
       return fetch(event.request).catch(() => {
-        return new Response('Erro ao carregar o conteúdo.', {
-          status: 500,
-          statusText: 'Network Error',
+        return new Response('Arquivo offline não disponível', {
+          status: 404,
+          statusText: 'Offline',
         });
       });
     })
