@@ -1,23 +1,23 @@
 {
   "name": "Placar Eletrônico de Dominó",
   "short_name": "Placar Dominó",
-  "start_url": "https://store-app.github.io/Placar-Eletronico-de-Domino/index.html",   // Caminho absoluto para o arquivo index.html
-  "scope": "https://store-app.github.io/Placar-Eletronico-de-Domino/",  // Garante que o PWA funcione dentro do escopo do site
-  "display": "fullscreen",   // Configura o PWA para ser exibido em tela cheia
-  "background_color": "#5fada9",   // Cor de fundo da tela inicial
-  "theme_color": "#5fada9",  // Cor do tema para a barra de status
+  "start_url": "https://store-app.github.io/Placar-Eletronico-de-Domino/index.html",
+  "scope": "https://store-app.github.io/Placar-Eletronico-de-Domino/",
+  "display": "standalone",
+  "background_color": "#5fada9",
+  "theme_color": "#5fada9",
   "icons": [
     {
-      "src": "https://store-app.github.io/Placar-Eletronico-de-Domino/icon-192x192.png",  // Caminho absoluto para o ícone de 192x192
-      "sizes": "192x192",   // Tamanho do ícone
-      "type": "image/png"   // Tipo de imagem
+      "src": "https://store-app.github.io/Placar-Eletronico-de-Domino/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
     },
     {
-      "src": "https://store-app.github.io/Placar-Eletronico-de-Domino/icon-512x512.png",  // Caminho absoluto para o ícone de 512x512
-      "sizes": "512x512",   // Tamanho do ícone
-      "type": "image/png"   // Tipo de imagem
+      "src": "https://store-app.github.io/Placar-Eletronico-de-Domino/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ],
-  "description": "Aplicativo de Placar Eletrônico para Jogo de Dominó",  // Descrição do app
-  "orientation": "any"  // Permite tanto orientação vertical quanto horizontal
+  "description": "Aplicativo de Placar Eletrônico para Jogo de Dominó",
+  "orientation": "portrait"
 }
