@@ -38,7 +38,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Durante o fetch, serve os arquivos diretamente do cache
+// Durante o fetch, sempre serve os arquivos do cache
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
@@ -47,7 +47,8 @@ self.addEventListener('fetch', (event) => {
         return cachedResponse;
       }
 
-      // Se o arquivo não estiver no cache, tenta buscar da rede
+      // Caso não tenha o arquivo no cache, vai buscar na rede
+      // Se o usuário estiver offline, e a rede não for acessível, o arquivo não será encontrado.
       return fetch(event.request).catch(() => {
         return new Response('Arquivo offline não disponível', {
           status: 404,
